@@ -81,6 +81,38 @@ cd web && npm run dev
 
 ---
 
+## 环境变量（.env）
+
+程序启动时会读取项目根目录的 `.env`（零依赖，仅用 Node 内置模块解析），已存在的系统/容器环境变量优先级更高。可配置项：
+
+| 变量 | 默认 | 说明 |
+| --- | --- | --- |
+| `HOST` | `127.0.0.1` | 监听地址（容器内建议 `0.0.0.0`） |
+| `PORT` | `8788` | 监听端口 |
+| `PANEL_OPEN_BROWSER` | `0` | 是否自动打开浏览器（`1` 开启） |
+| `DATA_DIR` | `./data` | 数据目录（账号/配置/日志），支持相对或绝对路径 |
+| `API_KEY` | 自动生成 | 网关密钥；设置后覆盖 `data/config.json` 中的值 |
+
+用法：复制 `.env.example` 为 `.env` 后按需修改（`.env` 已被 gitignore，不会入库）。
+
+---
+
+## 自动构建（GitHub Actions）
+
+每次 push 到 `main` 会自动构建 Docker 镜像并推送到 GitHub Container Registry（GHCR）：
+
+```bash
+# 拉取已构建的镜像
+docker pull ghcr.io/ice-a/chatglm2api:latest
+
+# 或用镜像替换本地构建（docker-compose.yml 中把 build 改为 image）
+docker compose up -d
+```
+
+镜像标签：`latest`（默认分支）与提交 `sha`。推送使用内置 `GITHUB_TOKEN`，无需额外配置。PR 只构建不推送。
+
+---
+
 ## 安全提示
 
 - 面板**无后台密码**，默认监听 `127.0.0.1`；Docker 下监听 `0.0.0.0` 时，**请勿直接暴露到公网**，建议加反向代理鉴权。

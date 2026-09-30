@@ -27,8 +27,29 @@ let SEA = null;
 try { SEA = require('node:sea'); } catch (_) { /* 非 SEA 环境 */ }
 const IS_SEA = !!(SEA && SEA.isSea && SEA.isSea());
 
+// 轻量 .env 支持（零依赖，仅用内置模块）；已存在的 process.env 不被覆盖
+function loadDotEnv() {
+  let raw;
+  try {
+    raw = fs.readFileSync(path.join(ROOT, '.env'), 'utf8');
+  } catch (_) {
+    return;
+  }
+  for (const line of raw.split('\n')) {
+    const s = line.trim();
+    if (!s || s.startsWith('#')) continue;
+    const i = s.indexOf('=');
+    if (i < 0) continue;
+    const k = s.slice(0, i).trim();
+    let v = s.slice(i + 1).trim();
+    if ((v.startsWith('"') && v.endsWith('"')) || (v.startsWith("'") && v.endsWith("'"))) v = v.slice(1, -1);
+    if (!(k in process.env)) process.env[k] = v;
+  }
+}
+
 const ROOT = __dirname;
-const DATA_DIR = path.join(ROOT, 'data');
+const DATA_DIR = process.env.DATA_DIR ? path.resolve(ROOT, process.env.DATA_DIR) : path.join(ROOT, 'data');
+loadDotEnv();
 const CONFIG_PATH = path.join(DATA_DIR, 'config.json');
 const ACCOUNTS_PATH = path.join(DATA_DIR, 'accounts.json');
 const LOG_PATH = path.join(DATA_DIR, 'requests.log');
@@ -156,6 +177,7 @@ function loadConfig() {
   out.refresh_enabled = out.refresh_enabled !== false;
   out.oauth_clients = Array.isArray(out.oauth_clients) ? out.oauth_clients : [];
   if (!out.api_key) { out.api_key = 'sk-' + randomKey(16); }
+  if (process.env.API_KEY) out.api_key = String(process.env.API_KEY);
   return out;
 }
 
