@@ -102,10 +102,10 @@ cd web && npm run dev
 每次 push 到 `main` 会自动构建 Docker 镜像并推送到 GitHub Container Registry（GHCR）：
 
 ```bash
-# 拉取已构建的镜像
+# 拉取已构建的镜像（docker-compose.yml 默认已使用该镜像）
 docker pull ghcr.io/ice-a/chatglm2api:latest
 
-# 或用镜像替换本地构建（docker-compose.yml 中把 build 改为 image）
+# 直接启动（自动拉取 GHCR 镜像）
 docker compose up -d
 ```
 

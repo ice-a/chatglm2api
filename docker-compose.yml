@@ -1,7 +1,8 @@
 services:
   chatglm-panel:
-    build: .
-    image: chatglm-panel:latest
+    # 直接使用 GitHub Actions 自动构建并推送到 GHCR 的镜像
+    # （如需本地构建，可改回 build: . 并删除 image 行）
+    image: ghcr.io/ice-a/chatglm2api:latest
     container_name: chatglm-panel
     ports:
       - "8788:8788"
